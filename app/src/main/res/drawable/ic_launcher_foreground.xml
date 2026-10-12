@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Minimal molar outline: crown with two cusps, two roots. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFEDE8DC"
+        android:strokeWidth="3.2"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round"
+        android:pathData="M38,40 C38,33 44,31 48,34 C51,36 57,36 60,34 C64,31 70,33 70,40 C70,48 67,52 66,56 C65,62 64,72 61,76 C59,79 57,77 56.5,73 L55,64 C54.6,61.5 53.4,61.5 53,64 L51.5,73 C51,77 49,79 47,76 C44,72 43,62 42,56 C41,52 38,48 38,40 Z" />
+</vector>

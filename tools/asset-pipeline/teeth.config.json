@@ -1,0 +1,26 @@
+{
+  "sourceDir": "../../modele",
+  "outputDir": "../../app/src/main/assets/models",
+  "material": { "metallic": 0.0, "roughness": 0.6 },
+  "lengthSource": "Average overall tooth length (crown + root), Wheeler's Dental Anatomy, Physiology and Occlusion.",
+  "teeth": [
+    { "id": "t21", "source": "maxillary_left_central_incisor.glb", "lengthMm": 23.5, "yawDeg": 0, "tiltXDeg": 0, "tiltZDeg": 0 },
+    { "id": "t22", "source": "maxillary_lateral_incisor.glb", "lengthMm": 22.0, "yawDeg": 0, "tiltXDeg": 0, "tiltZDeg": 0 },
+    { "id": "t23", "source": "maxillary_canine.glb", "lengthMm": 27.0, "yawDeg": 0, "tiltXDeg": 0, "tiltZDeg": 0 },
+    { "id": "t24", "source": "maxillary_first_premolar.glb", "lengthMm": 22.5, "yawDeg": -90, "tiltXDeg": 0, "tiltZDeg": 0 },
+    { "id": "t25", "source": "maxillary_second_premolar.glb", "lengthMm": 22.5, "yawDeg": -90, "tiltXDeg": 0, "tiltZDeg": 0 },
+    { "id": "t26", "source": "maxillary_first_molar.glb", "lengthMm": 20.5, "yawDeg": -90, "tiltXDeg": 0, "tiltZDeg": 0 },
+    { "id": "t26_carabelli", "source": "maxillary_first_molar_with_cusp_of_carabelli.glb", "lengthMm": 20.5, "yawDeg": 180, "tiltXDeg": 0, "tiltZDeg": 0,
+      "dropMaterials": ["defaultMat_0"], "dropReason": "Two small meshes fully enclosed inside the tooth (ZBrush subtool leftovers); never visible from outside." },
+    { "id": "t27", "source": "maxillary_second_molar.glb", "lengthMm": 19.0, "yawDeg": -90, "tiltXDeg": 0, "tiltZDeg": 0 },
+    { "id": "t28", "source": "maxillary_third_molar.glb", "lengthMm": 17.5, "yawDeg": -90, "tiltXDeg": 0, "tiltZDeg": 0 },
+    { "id": "t31", "source": "mandibular_left_central_incisor.glb", "lengthMm": 21.5, "yawDeg": 0, "tiltXDeg": 0, "tiltZDeg": 0 },
+    { "id": "t32", "source": "mandibular_left_lateral_incisor.glb", "lengthMm": 23.5, "yawDeg": 0, "tiltXDeg": 0, "tiltZDeg": 0 },
+    { "id": "t33", "source": "mandibular_left_canine.glb", "lengthMm": 27.0, "yawDeg": 0, "tiltXDeg": 0, "tiltZDeg": 0 },
+    { "id": "t34", "source": "mandibular_first_premolar.glb", "lengthMm": 22.5, "yawDeg": -60, "tiltXDeg": 0, "tiltZDeg": 0 },
+    { "id": "t35", "source": "mandibular_left_second_premolar.glb", "lengthMm": 22.5, "yawDeg": -60, "tiltXDeg": 0, "tiltZDeg": 0 },
+    { "id": "t36", "source": "mandibular_first_molar.glb", "lengthMm": 21.5, "yawDeg": -90, "tiltXDeg": 0, "tiltZDeg": 0 },
+    { "id": "t37", "source": "mandibular_second_molar.glb", "lengthMm": 20.0, "yawDeg": -90, "tiltXDeg": 0, "tiltZDeg": 0 },
+    { "id": "t38", "source": "mandibular_third_molar.glb", "lengthMm": 18.0, "yawDeg": -90, "tiltXDeg": 0, "tiltZDeg": 0 }
+  ]
+}

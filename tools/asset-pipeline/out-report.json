@@ -1,0 +1,368 @@
+[
+  {
+    "id": "t21",
+    "source": "maxillary_left_central_incisor.glb",
+    "output": "t21.glb",
+    "vertices": 21769,
+    "triangles": 43000,
+    "sourceAxisTiltDeg": 15.6,
+    "calibration": {
+      "yawDeg": 0,
+      "tiltXDeg": 0,
+      "tiltZDeg": 0
+    },
+    "scaleFactor": 25.9184,
+    "sizeMm": [
+      8.29,
+      23.5,
+      8.13
+    ],
+    "dropped": [],
+    "removedVertexColors": true
+  },
+  {
+    "id": "t22",
+    "source": "maxillary_lateral_incisor.glb",
+    "output": "t22.glb",
+    "vertices": 25423,
+    "triangles": 50216,
+    "sourceAxisTiltDeg": 16,
+    "calibration": {
+      "yawDeg": 0,
+      "tiltXDeg": 0,
+      "tiltZDeg": 0
+    },
+    "scaleFactor": 24.0045,
+    "sizeMm": [
+      7.42,
+      22,
+      6.84
+    ],
+    "dropped": [],
+    "removedVertexColors": true
+  },
+  {
+    "id": "t23",
+    "source": "maxillary_canine.glb",
+    "output": "t23.glb",
+    "vertices": 48287,
+    "triangles": 95968,
+    "sourceAxisTiltDeg": 9.6,
+    "calibration": {
+      "yawDeg": 0,
+      "tiltXDeg": 0,
+      "tiltZDeg": 0
+    },
+    "scaleFactor": 29.2282,
+    "sizeMm": [
+      8.12,
+      27,
+      8.98
+    ],
+    "dropped": [],
+    "removedVertexColors": true
+  },
+  {
+    "id": "t24",
+    "source": "maxillary_first_premolar.glb",
+    "output": "t24.glb",
+    "vertices": 26947,
+    "triangles": 52968,
+    "sourceAxisTiltDeg": 3.2,
+    "calibration": {
+      "yawDeg": -90,
+      "tiltXDeg": 0,
+      "tiltZDeg": 0
+    },
+    "scaleFactor": 26.0248,
+    "sizeMm": [
+      8.16,
+      22.5,
+      10.29
+    ],
+    "dropped": [],
+    "removedVertexColors": true
+  },
+  {
+    "id": "t25",
+    "source": "maxillary_second_premolar.glb",
+    "output": "t25.glb",
+    "vertices": 22027,
+    "triangles": 43600,
+    "sourceAxisTiltDeg": 12,
+    "calibration": {
+      "yawDeg": -90,
+      "tiltXDeg": 0,
+      "tiltZDeg": 0
+    },
+    "scaleFactor": 26.021,
+    "sizeMm": [
+      8.38,
+      22.5,
+      10.23
+    ],
+    "dropped": [],
+    "removedVertexColors": true
+  },
+  {
+    "id": "t26",
+    "source": "maxillary_first_molar.glb",
+    "output": "t26.glb",
+    "vertices": 28875,
+    "triangles": 57008,
+    "sourceAxisTiltDeg": 6.2,
+    "calibration": {
+      "yawDeg": -90,
+      "tiltXDeg": 0,
+      "tiltZDeg": 0
+    },
+    "scaleFactor": 27.4563,
+    "sizeMm": [
+      11.87,
+      20.5,
+      11.97
+    ],
+    "dropped": [],
+    "removedVertexColors": true
+  },
+  {
+    "id": "t26_carabelli",
+    "source": "maxillary_first_molar_with_cusp_of_carabelli.glb",
+    "output": "t26_carabelli.glb",
+    "vertices": 46825,
+    "triangles": 93248,
+    "sourceAxisTiltDeg": 4.8,
+    "calibration": {
+      "yawDeg": 180,
+      "tiltXDeg": 0,
+      "tiltZDeg": 0
+    },
+    "scaleFactor": 26.6016,
+    "sizeMm": [
+      10.71,
+      20.5,
+      12.98
+    ],
+    "dropped": [
+      {
+        "mesh": "Object_1",
+        "vertices": 889
+      },
+      {
+        "mesh": "Object_2",
+        "vertices": 3254
+      }
+    ],
+    "removedVertexColors": false
+  },
+  {
+    "id": "t27",
+    "source": "maxillary_second_molar.glb",
+    "output": "t27.glb",
+    "vertices": 28619,
+    "triangles": 56440,
+    "sourceAxisTiltDeg": 2.8,
+    "calibration": {
+      "yawDeg": -90,
+      "tiltXDeg": 0,
+      "tiltZDeg": 0
+    },
+    "scaleFactor": 12.0528,
+    "sizeMm": [
+      10.33,
+      19,
+      11.38
+    ],
+    "dropped": [],
+    "removedVertexColors": true
+  },
+  {
+    "id": "t28",
+    "source": "maxillary_third_molar.glb",
+    "output": "t28.glb",
+    "vertices": 25807,
+    "triangles": 50888,
+    "sourceAxisTiltDeg": 5.9,
+    "calibration": {
+      "yawDeg": -90,
+      "tiltXDeg": 0,
+      "tiltZDeg": 0
+    },
+    "scaleFactor": 11.2496,
+    "sizeMm": [
+      9.47,
+      17.5,
+      10.59
+    ],
+    "dropped": [],
+    "removedVertexColors": true
+  },
+  {
+    "id": "t31",
+    "source": "mandibular_left_central_incisor.glb",
+    "output": "t31.glb",
+    "vertices": 23429,
+    "triangles": 46200,
+    "sourceAxisTiltDeg": 19.2,
+    "calibration": {
+      "yawDeg": 0,
+      "tiltXDeg": 0,
+      "tiltZDeg": 0
+    },
+    "scaleFactor": 22.8594,
+    "sizeMm": [
+      5.49,
+      21.5,
+      6.68
+    ],
+    "dropped": [],
+    "removedVertexColors": true
+  },
+  {
+    "id": "t32",
+    "source": "mandibular_left_lateral_incisor.glb",
+    "output": "t32.glb",
+    "vertices": 24329,
+    "triangles": 48200,
+    "sourceAxisTiltDeg": 21.5,
+    "calibration": {
+      "yawDeg": 0,
+      "tiltXDeg": 0,
+      "tiltZDeg": 0
+    },
+    "scaleFactor": 24.8076,
+    "sizeMm": [
+      5.91,
+      23.5,
+      7.02
+    ],
+    "dropped": [],
+    "removedVertexColors": true
+  },
+  {
+    "id": "t33",
+    "source": "mandibular_left_canine.glb",
+    "output": "t33.glb",
+    "vertices": 27900,
+    "triangles": 55056,
+    "sourceAxisTiltDeg": 12,
+    "calibration": {
+      "yawDeg": 0,
+      "tiltXDeg": 0,
+      "tiltZDeg": 0
+    },
+    "scaleFactor": 29.2274,
+    "sizeMm": [
+      7.68,
+      27,
+      7.95
+    ],
+    "dropped": [],
+    "removedVertexColors": true
+  },
+  {
+    "id": "t34",
+    "source": "mandibular_first_premolar.glb",
+    "output": "t34.glb",
+    "vertices": 23913,
+    "triangles": 47264,
+    "sourceAxisTiltDeg": 3.5,
+    "calibration": {
+      "yawDeg": -60,
+      "tiltXDeg": 0,
+      "tiltZDeg": 0
+    },
+    "scaleFactor": 25.5725,
+    "sizeMm": [
+      7.61,
+      22.5,
+      9.27
+    ],
+    "dropped": [],
+    "removedVertexColors": true
+  },
+  {
+    "id": "t35",
+    "source": "mandibular_left_second_premolar.glb",
+    "output": "t35.glb",
+    "vertices": 24213,
+    "triangles": 48016,
+    "sourceAxisTiltDeg": 7.7,
+    "calibration": {
+      "yawDeg": -60,
+      "tiltXDeg": 0,
+      "tiltZDeg": 0
+    },
+    "scaleFactor": 11.5883,
+    "sizeMm": [
+      7.59,
+      22.5,
+      9.25
+    ],
+    "dropped": [],
+    "removedVertexColors": true
+  },
+  {
+    "id": "t36",
+    "source": "mandibular_first_molar.glb",
+    "output": "t36.glb",
+    "vertices": 27741,
+    "triangles": 55184,
+    "sourceAxisTiltDeg": 12.4,
+    "calibration": {
+      "yawDeg": -90,
+      "tiltXDeg": 0,
+      "tiltZDeg": 0
+    },
+    "scaleFactor": 11.3152,
+    "sizeMm": [
+      12.56,
+      21.5,
+      11.96
+    ],
+    "dropped": [],
+    "removedVertexColors": true
+  },
+  {
+    "id": "t37",
+    "source": "mandibular_second_molar.glb",
+    "output": "t37.glb",
+    "vertices": 27640,
+    "triangles": 54952,
+    "sourceAxisTiltDeg": 7.5,
+    "calibration": {
+      "yawDeg": -90,
+      "tiltXDeg": 0,
+      "tiltZDeg": 0
+    },
+    "scaleFactor": 11.0599,
+    "sizeMm": [
+      10.58,
+      20,
+      10.62
+    ],
+    "dropped": [],
+    "removedVertexColors": true
+  },
+  {
+    "id": "t38",
+    "source": "mandibular_third_molar.glb",
+    "output": "t38.glb",
+    "vertices": 25757,
+    "triangles": 51216,
+    "sourceAxisTiltDeg": 15.1,
+    "calibration": {
+      "yawDeg": -90,
+      "tiltXDeg": 0,
+      "tiltZDeg": 0
+    },
+    "scaleFactor": 11.3008,
+    "sizeMm": [
+      9.85,
+      18,
+      10.46
+    ],
+    "dropped": [],
+    "removedVertexColors": true
+  }
+]
