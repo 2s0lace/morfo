@@ -207,16 +207,66 @@ html, body {
 /* Responsive Hide/Show */
 @media (max-width: 900px) {
   .app-container {
-    flex-direction: column-reverse;
+    flex-direction: column;
+  }
+  .viewport-wrapper {
+    width: 100%;
+    height: 52%;
+    flex: none;
   }
   .sidebar {
     width: 100%;
-    height: 45%;
+    height: 48%;
     border-right: none;
     border-top: 1px solid var(--outline-color);
   }
-  .viewport-wrapper {
-    height: 55%;
+  .floating-surface-bar {
+    bottom: 8px;
+    padding: 4px 8px;
+    gap: 4px;
+    max-width: 96%;
+    overflow-x: auto;
+  }
+  .surface-btn {
+    padding: 5px 9px;
+    font-size: 11px;
+  }
+  .kbd-badge {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .app-header {
+    padding: 0 8px;
+  }
+  .brand-title {
+    font-size: 15px;
+  }
+  .nav-tabs {
+    padding: 2px;
+    gap: 2px;
+  }
+  .nav-tab {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+  .btn-download-apk span {
+    display: none;
+  }
+  .btn-download-apk {
+    padding: 6px;
+  }
+  .tooth-chip {
+    width: 20px;
+    height: 28px;
+    font-size: 10px;
+  }
+  .arch-row {
+    gap: 6px;
+  }
+  .quadrant-group {
+    gap: 2px;
   }
 }
 
