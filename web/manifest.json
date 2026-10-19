@@ -1,0 +1,18 @@
+{
+  "name": "Morfo - Anatomia Zębów 3D",
+  "short_name": "Morfo",
+  "description": "Narzędzie do nauki anatomii i morfologii zębów stałych w 3D",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#111214",
+  "theme_color": "#111214",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

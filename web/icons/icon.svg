@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="108" height="108">
+  <rect width="108" height="108" rx="24" fill="#111214"/>
+  <path
+    fill="none"
+    stroke="#EDE8DC"
+    stroke-width="3.6"
+    stroke-linejoin="round"
+    stroke-linecap="round"
+    d="M38,40 C38,33 44,31 48,34 C51,36 57,36 60,34 C64,31 70,33 70,40 C70,48 67,52 66,56 C65,62 64,72 61,76 C59,79 57,77 56.5,73 L55,64 C54.6,61.5 53.4,61.5 53,64 L51.5,73 C51,77 49,79 47,76 C44,72 43,62 42,56 C41,52 38,48 38,40 Z"
+  />
+</svg>

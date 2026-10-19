@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Morfo – Anatomia Zębów Stałych 3D</title>
+
+  <!-- PWA & Mobile Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#111214">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Morfo">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="apple-touch-icon" href="icons/icon.svg">
+
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Importmap for Three.js (100% self-contained locally) -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three.module.js",
+      "three/addons/": "./vendor/"
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="brand-section">
+      <img src="icons/icon.svg" alt="Morfo Logo" class="brand-icon">
+      <div>
+        <h1 class="brand-title">Morfo</h1>
+        <span class="brand-subtitle" data-i18n="appSubtitle">Anatomia zębów stałych 3D</span>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-tab="compare" data-i18n="tabCompare">Porównywarka 3D</button>
+      <button class="nav-tab" data-tab="quiz" data-i18n="tabQuiz">Quiz FDI</button>
+      <button class="nav-tab" data-tab="flashcards" data-i18n="tabFlashcards">Fiszki</button>
+      <button class="nav-tab" data-tab="about" data-i18n="tabAbout">O aplikacji</button>
+    </nav>
+
+    <!-- Header Actions -->
+    <div class="header-actions">
+      <a href="https://github.com/2s0lace/morfo/releases/latest/download/Morfo.apk" class="btn-icon-text btn-download-apk" title="Pobierz natywną aplikację na Androida">
+        <svg class="android-icon-svg" viewBox="0 0 24 24">
+          <path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-1 0-.5514.4482-1 .9993-1 .5511 0 .9993.4486.9993 1 0 .5514-.4482 1-.9993 1m-11.046 0c-.5511 0-.9993-.4486-.9993-1 0-.5514.4482-1 .9993-1 .5511 0 .9993.4486.9993 1 0 .5514-.4482 1-.9993 1m11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0223 3.503C15.5902 8.4126 13.8533 8.0833 12 8.0833c-1.8533 0-3.5902.3293-5.1368.8664L4.8409 5.4467a.4161.4161 0 10-.7197.4155l1.9973 3.4592C2.6889 11.2867 1 14.3312 1 17.8333h22c0-3.5021-1.6889-6.5466-5.1185-8.5119"/>
+        </svg>
+        <span data-i18n="downloadApk">Pobierz APK</span>
+      </a>
+
+      <button id="lang-toggle-btn" class="btn-icon-text" title="Zmień język / Switch language">EN</button>
+    </div>
+  </header>
+
+  <!-- App Main Layout -->
+  <main class="app-container">
+
+    <!-- 3D Viewport Area -->
+    <div class="viewport-wrapper">
+      <div id="viewport-container"></div>
+
+      <!-- Floating Surface Preset Bar (Compare Mode) -->
+      <div id="compare-floating-controls" class="floating-surface-bar">
+        <button class="surface-btn" data-preset="FACIAL">
+          <span data-i18n="facial">Przedsionkowa</span>
+          <span class="kbd-badge">1</span>
+        </button>
+        <button class="surface-btn" data-preset="LINGUAL">
+          <span data-i18n="lingual">Językowa</span>
+          <span class="kbd-badge">2</span>
+        </button>
+        <button class="surface-btn" data-preset="MESIAL">
+          <span data-i18n="mesial">Mezjalna</span>
+          <span class="kbd-badge">3</span>
+        </button>
+        <button class="surface-btn" data-preset="DISTAL">
+          <span data-i18n="distal">Dystalna</span>
+          <span class="kbd-badge">4</span>
+        </button>
+        <button class="surface-btn" data-preset="OCCLUSAL">
+          <span data-i18n="occlusal">Żująca</span>
+          <span class="kbd-badge">5</span>
+        </button>
+        <button class="surface-btn" data-preset="RESET">
+          <span data-i18n="resetView">Wyśrodkuj</span>
+          <span class="kbd-badge">R</span>
+        </button>
+      </div>
+
+      <!-- Quiz Overlay Panel -->
+      <div id="panel-quiz" class="view-panel hidden">
+        <div class="panel-card-overlay">
+          <div class="flex justify-between items-center">
+            <h3 class="section-title" data-i18n="quizTitle">Quiz FDI</h3>
+            <span class="text-xs text-muted">
+              <span data-i18n="streak">Seria:</span> <b id="quiz-streak-count" style="color:var(--accent-color)">0</b> | 
+              <span data-i18n="score">Wynik:</span> <b id="quiz-score-count">0 / 0</b>
+            </span>
+          </div>
+
+          <p class="text-xs text-muted" data-i18n="quizSubtitle">
+            Rozpoznaj ząb w losowym obrocie 3D i wpisz jego dwucyfrowy numer FDI.
+          </p>
+
+          <div id="quiz-input-display" class="quiz-input-box">__</div>
+
+          <!-- Keypad Grid -->
+          <div class="keypad-grid">
+            <button class="keypad-btn" data-key="1">1</button>
+            <button class="keypad-btn" data-key="2">2</button>
+            <button class="keypad-btn" data-key="3">3</button>
+            <button class="keypad-btn" data-key="4">4</button>
+            <button class="keypad-btn" data-key="5">5</button>
+            <button class="keypad-btn" data-key="6">6</button>
+            <button class="keypad-btn" data-key="7">7</button>
+            <button class="keypad-btn" data-key="8">8</button>
+            <button class="keypad-btn btn-backspace" data-key="backspace" style="grid-column: span 4">⌫ Cofnij (Backspace)</button>
+          </div>
+
+          <!-- Feedback & Next Button -->
+          <div id="quiz-feedback-card" class="hidden"></div>
+          <button id="quiz-next-btn" class="btn-primary hidden" data-i18n="nextQuestion">Następny ząb (Enter)</button>
+        </div>
+      </div>
+
+      <!-- Flashcards Overlay Panel -->
+      <div id="panel-flashcards" class="view-panel hidden">
+        <div class="panel-card-overlay">
+          <div class="flex justify-between items-center">
+            <h3 class="section-title" data-i18n="flashcardsTitle">Fiszki</h3>
+            <span class="text-xs text-muted"><span data-i18n="mastered">Opanowane:</span> <b id="fc-mastered-count" style="color:var(--accent-color)">0 / 32</b></span>
+          </div>
+
+          <p class="text-xs text-muted" data-i18n="flashcardsSubtitle">
+            Sprawdź czy pamiętasz cechy tego zęba przed odkryciem odpowiedzi.
+          </p>
+
+          <button id="fc-reveal-btn" class="btn-primary" data-i18n="revealAnswer">Odkryj odpowiedź (Spacja)</button>
+
+          <div id="fc-answer-card" class="specs-card hidden"></div>
+
+          <div id="fc-rating-group" class="flex gap-2 hidden" style="display:flex; gap:6px;">
+            <button class="fc-rate-btn btn-primary" data-diff="hard" style="flex:1; background-color:#3a1d20; color:#f85149;" data-i18n="difficultyHard">Trudne (1)</button>
+            <button class="fc-rate-btn btn-primary" data-diff="good" style="flex:1; background-color:#202b38; color:#58a6ff;" data-i18n="difficultyGood">Dobre (2)</button>
+            <button class="fc-rate-btn btn-primary" data-diff="easy" style="flex:1; background-color:#1c3322; color:#56d364;" data-i18n="difficultyEasy">Łatwe (3)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- About Modal Panel -->
+      <div id="panel-about" class="view-panel hidden">
+        <div class="about-modal">
+          <h2 class="brand-title" style="font-size:22px;" data-i18n="aboutTitle">O aplikacji Morfo</h2>
+          <p class="text-sm" style="line-height:22px;" data-i18n="aboutText">
+            Morfo to minimalistyczne narzędzie stworzone dla studentów stomatologii do nauki anatomii opisowej zębów stałych.
+          </p>
+
+          <div class="specs-card">
+            <h4 class="text-xs font-semibold text-muted" data-i18n="modelsCredit">Modele 3D: University of Dundee, School of Dentistry (CC BY 4.0).</h4>
+            <h4 class="text-xs font-semibold text-muted" data-i18n="dimensionsCredit">Wymiary i opisy cech: Wheeler’s Dental Anatomy, Physiology and Occlusion.</h4>
+          </div>
+
+          <div class="specs-card">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-muted mb-2" data-i18n="testedOn">Sprawdzone urządzenia:</h4>
+            <div class="device-badge-list">
+              <div class="device-badge-item">Samsung Galaxy Tab S9 FE ✅</div>
+              <div class="device-badge-item">Samsung Galaxy S25 Edge ✅</div>
+              <div class="device-badge-item">OPPO Find X9 Pro ✅</div>
+            </div>
+          </div>
+
+          <div class="specs-card">
+            <p class="text-xs text-muted mb-3" data-i18n="apkNotice">
+              Wolisz uczyć się na telefonie bez przeglądarki? Pobierz naszą natywną aplikację na Androida:
+            </p>
+            <a href="https://github.com/2s0lace/morfo/releases/latest/download/Morfo.apk" class="btn-primary" style="display:block; text-align:center; text-decoration:none;" data-i18n="downloadApk">
+              Pobierz APK na Androida
+            </a>
+          </div>
+
+          <button class="nav-tab" data-tab="compare" style="align-self:flex-start; margin-top:8px;" data-i18n="backToApp">← Powrót do aplikacji</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Left Sidebar (Desktop & Tablet) -->
+    <aside id="compare-sidebar" class="sidebar">
+
+      <!-- Dental Arch Card -->
+      <div class="odontogram-card">
+        <div class="section-title">
+          <span data-i18n="archUpper">Szczęka (łuk górny)</span>
+          <span class="text-xs text-muted"><span data-i18n="sideRight">Prawa</span> | <span data-i18n="sideLeft">Lewa</span></span>
+        </div>
+        <div id="odontogram-upper" class="arch-row"></div>
+
+        <div class="section-title" style="margin-top:10px;">
+          <span data-i18n="archLower">Żuchwa (łuk dolny)</span>
+          <span class="text-xs text-muted"><span data-i18n="sideRight">Prawa</span> | <span data-i18n="sideLeft">Lewa</span></span>
+        </div>
+        <div id="odontogram-lower" class="arch-row"></div>
+
+        <div class="selected-bar mt-2">
+          <span class="text-xs font-semibold text-muted" data-i18n="selectedTeeth">Wybrane:</span>
+          <div id="selected-pills-container" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
+          <button id="clear-selection-btn" class="btn-clear" data-i18n="clearSelection">Wyczyść</button>
+        </div>
+      </div>
+
+      <!-- Quick Comparisons -->
+      <div class="quick-comparisons-card">
+        <h4 class="section-title" data-i18n="quickComparisonsTitle">Szybkie zestawienia:</h4>
+        <div id="quick-comparisons-list" class="quick-chips-scroll"></div>
+      </div>
+
+      <!-- Tooth Morphology Specs Card -->
+      <div id="tooth-specs-card" class="specs-card"></div>
+
+    </aside>
+
+  </main>
+
+  <!-- PWA Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch((err) => {
+          console.log('SW registration note:', err);
+        });
+      });
+    }
+  </script>
+
+  <!-- Main JavaScript App -->
+  <script type="module" src="js/app.js"></script>
+
+</body>
+</html>

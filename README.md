@@ -1,9 +1,10 @@
 # Morfo
 
-Aplikacja na Androida do nauki anatomii zębów stałych. Zamiast płaskich rycin w atlasie pozwala oglądać zęby w pełnym 3D, porównywać je obok siebie i trenować rozpoznawanie przed szpilkami czy kolokwium.
+Aplikacja do nauki anatomii zębów stałych. Zamiast płaskich rycin w atlasie pozwala oglądać zęby w pełnym 3D, porównywać je obok siebie i trenować rozpoznawanie przed szpilkami czy kolokwium. Działa jako aplikacja na Androida oraz w przeglądarce (na iPhone'ach, iPadach i komputerach).
 
 [![Pobierz APK](https://img.shields.io/badge/Pobierz-Morfo.apk-2ea44f?style=for-the-badge&logo=android&logoColor=white)](https://github.com/2s0lace/morfo/releases/latest/download/Morfo.apk)
-[![Wersja](https://img.shields.io/github/v/release/2s0lace/morfo?style=for-the-badge&label=Wersja&color=0969da)](https://github.com/2s0lace/morfo/releases/latest)
+[![Uruchom w przeglądarce](https://img.shields.io/badge/Wersja_Web-Uruchom_w_przegl%C4%85darce-0969da?style=for-the-badge&logo=googlechrome&logoColor=white)](https://2s0lace.github.io/morfo/)
+[![Wersja](https://img.shields.io/github/v/release/2s0lace/morfo?style=for-the-badge&label=Wersja&color=6e7681)](https://github.com/2s0lace/morfo/releases/latest)
 
 ---
 
