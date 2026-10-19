@@ -79,6 +79,11 @@ export class ToothViewer {
   initEvents() {
     window.addEventListener('resize', () => this.onResize());
 
+    if (window.ResizeObserver) {
+      this.resizeObserver = new ResizeObserver(() => this.onResize());
+      this.resizeObserver.observe(this.container);
+    }
+
     // Double tap / double click to center
     this.renderer.domElement.addEventListener('dblclick', () => this.resetView());
   }
@@ -281,6 +286,11 @@ export class ToothViewer {
     let dist = 60;
     if (count === 2) dist = 75;
     else if (count >= 3) dist = 85 + (count - 3) * 15;
+
+    // Adjust camera distance for portrait mobile screens
+    if (this.camera.aspect < 1) {
+      dist = dist / Math.max(this.camera.aspect * 1.3, 0.55);
+    }
 
     // Smooth reset
     const startPos = this.camera.position.clone();

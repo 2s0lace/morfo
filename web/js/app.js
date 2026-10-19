@@ -12,6 +12,7 @@ class MorfoApp {
     this.flashcards = null;
 
     this.activeTab = 'compare'; // 'compare', 'quiz', 'flashcards', 'about'
+    this.mobileMode = '3d'; // '3d' or 'selector'
     this.selectedTeethFdi = [11, 21]; // Default: central incisors
     this.inspectedFdi = 11; // Tooth whose morphology specs are displayed
     this.carabelliEnabled = false;
@@ -32,6 +33,7 @@ class MorfoApp {
     this.renderQuickComparisons();
     this.loadSelectedTeethInViewer();
     this.renderToothSpecs();
+    this.updateMobileViewClasses();
   }
 
   bindEvents() {
@@ -55,6 +57,38 @@ class MorfoApp {
         this.renderToothSpecs();
         if (this.activeTab === 'quiz') this.quiz.notify();
         if (this.activeTab === 'flashcards') this.flashcards.notify();
+      });
+    }
+
+    // Mobile navigation controls
+    const mobileStartCompare = document.getElementById('mobile-start-compare-btn');
+    if (mobileStartCompare) {
+      mobileStartCompare.addEventListener('click', () => {
+        this.setMobileMode('3d');
+      });
+    }
+
+    const mobileBackBtn = document.getElementById('mobile-back-to-selector');
+    if (mobileBackBtn) {
+      mobileBackBtn.addEventListener('click', () => {
+        this.setMobileMode('selector');
+      });
+    }
+
+    // Mobile Specs Bottom Sheet
+    const openSpecsBtn = document.getElementById('mobile-open-specs-btn');
+    const closeSpecsBtn = document.getElementById('close-specs-sheet-btn');
+    const specsModal = document.getElementById('specs-sheet-modal');
+
+    if (openSpecsBtn) {
+      openSpecsBtn.addEventListener('click', () => this.openMobileSpecs());
+    }
+    if (closeSpecsBtn && specsModal) {
+      closeSpecsBtn.addEventListener('click', () => specsModal.classList.add('hidden'));
+    }
+    if (specsModal) {
+      specsModal.addEventListener('click', (e) => {
+        if (e.target === specsModal) specsModal.classList.add('hidden');
       });
     }
 
@@ -122,7 +156,6 @@ class MorfoApp {
 
     // Physical Keyboard Shortcuts for Laptop/PC users
     window.addEventListener('keydown', (e) => {
-      // Ignore if user is inside an input field
       if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
 
       if (this.activeTab === 'compare') {
@@ -157,6 +190,33 @@ class MorfoApp {
         }
       }
     });
+
+    window.addEventListener('resize', () => {
+      this.updateMobileViewClasses();
+    });
+  }
+
+  setMobileMode(mode) {
+    this.mobileMode = mode;
+    this.updateMobileViewClasses();
+    if (mode === '3d') {
+      setTimeout(() => this.viewer.onResize(), 60);
+    }
+  }
+
+  updateMobileViewClasses() {
+    const container = document.querySelector('.app-container');
+    if (!container) return;
+
+    container.classList.remove('mobile-mode-selector', 'mobile-mode-3d', 'mobile-mode-quiz', 'mobile-mode-flashcards');
+
+    if (this.activeTab === 'quiz') {
+      container.classList.add('mobile-mode-quiz');
+    } else if (this.activeTab === 'flashcards') {
+      container.classList.add('mobile-mode-flashcards');
+    } else if (this.activeTab === 'compare') {
+      container.classList.add(this.mobileMode === '3d' ? 'mobile-mode-3d' : 'mobile-mode-selector');
+    }
   }
 
   switchTab(tabId) {
@@ -173,9 +233,14 @@ class MorfoApp {
 
     // Controls visibility
     const compareControls = document.getElementById('compare-floating-controls');
+    const compareTopBar = document.getElementById('viewport-top-bar');
     const compareSidebar = document.getElementById('compare-sidebar');
+
     if (compareControls) compareControls.classList.toggle('hidden', tabId !== 'compare');
+    if (compareTopBar) compareTopBar.classList.toggle('hidden', tabId !== 'compare');
     if (compareSidebar) compareSidebar.classList.toggle('hidden', tabId !== 'compare');
+
+    this.updateMobileViewClasses();
 
     // Activate tab-specific logic
     if (tabId === 'compare') {
@@ -274,25 +339,52 @@ class MorfoApp {
 
   renderSelectedPills() {
     const container = document.getElementById('selected-pills-container');
-    if (!container) return;
+    const topBarContainer = document.getElementById('viewport-teeth-pills');
+    const countBadge = document.getElementById('mobile-selected-count');
 
-    container.innerHTML = '';
-    if (this.selectedTeethFdi.length === 0) {
-      container.innerHTML = `<span class="text-muted text-sm">${t('noneSelected')}</span>`;
-      return;
+    if (countBadge) {
+      countBadge.textContent = this.selectedTeethFdi.length;
     }
 
-    this.selectedTeethFdi.forEach((fdi) => {
-      const pill = document.createElement('button');
-      pill.className = `pill-badge ${this.inspectedFdi === fdi ? 'active-inspected' : ''}`;
-      pill.textContent = fdi;
-      pill.addEventListener('click', () => {
-        this.inspectedFdi = fdi;
-        this.renderSelectedPills();
-        this.renderToothSpecs();
+    // Render pills in the floating 3D top bar
+    if (topBarContainer) {
+      topBarContainer.innerHTML = '';
+      this.selectedTeethFdi.forEach((fdi) => {
+        const pill = document.createElement('button');
+        pill.className = `pill-badge ${this.inspectedFdi === fdi ? 'active-inspected' : ''}`;
+        pill.textContent = fdi;
+        pill.addEventListener('click', () => {
+          this.inspectedFdi = fdi;
+          this.renderSelectedPills();
+          this.renderToothSpecs();
+          if (window.innerWidth <= 900) {
+            this.openMobileSpecs();
+          }
+        });
+        topBarContainer.appendChild(pill);
       });
-      container.appendChild(pill);
-    });
+    }
+
+    // Render pills in sidebar
+    if (container) {
+      container.innerHTML = '';
+      if (this.selectedTeethFdi.length === 0) {
+        container.innerHTML = `<span class="text-muted text-sm">${t('noneSelected')}</span>`;
+        return;
+      }
+
+      this.selectedTeethFdi.forEach((fdi) => {
+        const pill = document.createElement('button');
+        pill.className = `pill-badge ${this.inspectedFdi === fdi ? 'active-inspected' : ''}`;
+        pill.textContent = fdi;
+        pill.addEventListener('click', () => {
+          this.inspectedFdi = fdi;
+          this.renderSelectedPills();
+          this.renderToothSpecs();
+        });
+        container.appendChild(pill);
+      });
+    }
   }
 
   renderQuickComparisons() {
@@ -319,6 +411,11 @@ class MorfoApp {
         this.renderOdontogram();
         this.loadSelectedTeethInViewer();
         this.renderToothSpecs();
+
+        // On mobile, immediately open 3D comparison
+        if (window.innerWidth <= 900) {
+          this.setMobileMode('3d');
+        }
       });
 
       container.appendChild(chip);
@@ -340,12 +437,21 @@ class MorfoApp {
     this.viewer.setTeeth(items);
   }
 
+  openMobileSpecs() {
+    const modal = document.getElementById('specs-sheet-modal');
+    if (!modal) return;
+    this.renderToothSpecs();
+    modal.classList.remove('hidden');
+  }
+
   renderToothSpecs() {
-    const container = document.getElementById('tooth-specs-card');
-    if (!container) return;
+    const desktopContainer = document.getElementById('tooth-specs-card');
+    const mobileContainer = document.getElementById('mobile-tooth-specs-content');
 
     if (!this.inspectedFdi || this.selectedTeethFdi.length === 0) {
-      container.innerHTML = `<p class="text-muted text-sm">${t('noneSelected')}</p>`;
+      const emptyHtml = `<p class="text-muted text-sm">${t('noneSelected')}</p>`;
+      if (desktopContainer) desktopContainer.innerHTML = emptyHtml;
+      if (mobileContainer) mobileContainer.innerHTML = emptyHtml;
       return;
     }
 
@@ -359,7 +465,7 @@ class MorfoApp {
       carabelliHtml = `
         <div class="carabelli-row">
           <label class="toggle-switch">
-            <input type="checkbox" id="carabelli-toggle" ${this.carabelliEnabled ? 'checked' : ''}>
+            <input type="checkbox" class="carabelli-input" ${this.carabelliEnabled ? 'checked' : ''}>
             <span class="slider"></span>
           </label>
           <span class="text-sm font-medium">${t('carabelliToggle')}</span>
@@ -371,7 +477,7 @@ class MorfoApp {
       .map((f) => `<li class="spec-item">${f}</li>`)
       .join('');
 
-    container.innerHTML = `
+    const html = `
       <div class="specs-header">
         <span class="fdi-big-badge">${tooth.fdi}</span>
         <div>
@@ -397,14 +503,16 @@ class MorfoApp {
       </div>
     `;
 
-    // Re-bind carabelli toggle
-    const cb = document.getElementById('carabelli-toggle');
-    if (cb) {
+    if (desktopContainer) desktopContainer.innerHTML = html;
+    if (mobileContainer) mobileContainer.innerHTML = html;
+
+    // Bind all carabelli inputs (both desktop and mobile)
+    document.querySelectorAll('.carabelli-input').forEach((cb) => {
       cb.addEventListener('change', (e) => {
         this.carabelliEnabled = e.target.checked;
         this.loadSelectedTeethInViewer();
       });
-    }
+    });
   }
 
   renderQuizState(state) {

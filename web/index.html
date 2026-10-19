@@ -64,6 +64,17 @@
 
     <!-- 3D Viewport Area -->
     <div class="viewport-wrapper">
+      <!-- Floating Top Bar in 3D Mode -->
+      <div id="viewport-top-bar" class="viewport-top-bar">
+        <button id="mobile-back-to-selector" class="top-bar-btn">
+          <span class="back-arrow">←</span> <span data-i18n="backToSelector">Wybór zębów</span>
+        </button>
+        <div id="viewport-teeth-pills" class="viewport-pills"></div>
+        <button id="mobile-open-specs-btn" class="top-bar-btn">
+          ℹ <span data-i18n="specsShort">Cechy</span>
+        </button>
+      </div>
+
       <div id="viewport-container"></div>
 
       <!-- Floating Surface Preset Bar (Compare Mode) -->
@@ -221,10 +232,29 @@
         <div id="quick-comparisons-list" class="quick-chips-scroll"></div>
       </div>
 
-      <!-- Tooth Morphology Specs Card -->
-      <div id="tooth-specs-card" class="specs-card"></div>
+      <!-- Tooth Morphology Specs Card (Desktop) -->
+      <div id="tooth-specs-card" class="specs-card desktop-only-card"></div>
+
+      <!-- Mobile Sticky Compare Action Bar -->
+      <div class="mobile-compare-bar">
+        <button id="mobile-start-compare-btn" class="btn-primary btn-start-compare">
+          <span data-i18n="open3DView">Porównaj w 3D</span> (<span id="mobile-selected-count">2</span>) →
+        </button>
+      </div>
 
     </aside>
+
+    <!-- Slide-up Bottom Sheet for Specs on Mobile -->
+    <div id="specs-sheet-modal" class="specs-sheet-backdrop hidden">
+      <div class="specs-sheet-container">
+        <div class="sheet-drag-handle"></div>
+        <div class="sheet-header">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-muted" data-i18n="specsTitle">Cechy morfologiczne</h3>
+          <button id="close-specs-sheet-btn" class="sheet-close-btn">✕</button>
+        </div>
+        <div id="mobile-tooth-specs-content"></div>
+      </div>
+    </div>
 
   </main>
 
