@@ -17,20 +17,20 @@ android {
         ndk { abiFilters += "arm64-v8a" }
     }
 
-    signingConfigs {
-        create("release") {
-            val keystorePath = project.findProperty("RELEASE_STORE_FILE") as String?
-                ?: System.getenv("RELEASE_STORE_FILE")
-            if (!keystorePath.isNullOrEmpty() && file(keystorePath).exists()) {
-                storeFile = file(keystorePath)
+    val keystorePath = project.findProperty("RELEASE_STORE_FILE") as String?
+        ?: System.getenv("RELEASE_STORE_FILE")
+    val hasReleaseKeystore = !keystorePath.isNullOrEmpty() && file(keystorePath).exists()
+
+    if (hasReleaseKeystore) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(keystorePath!!)
                 storePassword = project.findProperty("RELEASE_STORE_PASSWORD") as String?
                     ?: System.getenv("RELEASE_STORE_PASSWORD") ?: ""
                 keyAlias = project.findProperty("RELEASE_KEY_ALIAS") as String?
                     ?: System.getenv("RELEASE_KEY_ALIAS") ?: ""
                 keyPassword = project.findProperty("RELEASE_KEY_PASSWORD") as String?
                     ?: System.getenv("RELEASE_KEY_PASSWORD") ?: ""
-            } else {
-                initWith(getByName("debug"))
             }
         }
     }
@@ -38,7 +38,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = if (hasReleaseKeystore) signingConfigs.getByName("release") else signingConfigs.getByName("debug")
         }
     }
     compileOptions {
