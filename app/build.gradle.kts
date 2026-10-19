@@ -17,10 +17,28 @@ android {
         ndk { abiFilters += "arm64-v8a" }
     }
 
+    signingConfigs {
+        create("release") {
+            val keystorePath = project.findProperty("RELEASE_STORE_FILE") as String?
+                ?: System.getenv("RELEASE_STORE_FILE")
+            if (!keystorePath.isNullOrEmpty() && file(keystorePath).exists()) {
+                storeFile = file(keystorePath)
+                storePassword = project.findProperty("RELEASE_STORE_PASSWORD") as String?
+                    ?: System.getenv("RELEASE_STORE_PASSWORD") ?: ""
+                keyAlias = project.findProperty("RELEASE_KEY_ALIAS") as String?
+                    ?: System.getenv("RELEASE_KEY_ALIAS") ?: ""
+                keyPassword = project.findProperty("RELEASE_KEY_PASSWORD") as String?
+                    ?: System.getenv("RELEASE_KEY_PASSWORD") ?: ""
+            } else {
+                initWith(getByName("debug"))
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
