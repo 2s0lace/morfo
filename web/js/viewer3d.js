@@ -43,8 +43,11 @@ export class ToothViewer {
     this.controls.zoomSpeed = 1.0;
     this.controls.panSpeed = 0.8;
     this.controls.minDistance = 15;
-    this.controls.maxDistance = 250;
+    this.controls.maxDistance = 320;
     this.controls.target.set(0, 0, 0);
+
+    this.insetTop = 0;
+    this.insetBottom = 0;
 
     // Root group for all tooth objects
     this.teethGroup = new THREE.Group();
@@ -253,6 +256,16 @@ export class ToothViewer {
     }
   }
 
+  resetRotation(fdi = null) {
+    for (const item of this.teeth) {
+      if (fdi !== null && item.fdi !== fdi) continue;
+      item.fromQuat.copy(item.pivot.quaternion);
+      item.targetQuat.identity();
+      item.animStart = performance.now();
+      item.animating = true;
+    }
+  }
+
   /**
    * Sets a random rotation on the tooth (used in FDI Quiz)
    */
@@ -279,24 +292,44 @@ export class ToothViewer {
     item.animating = true;
   }
 
+  setInsets(top, bottom) {
+    this.insetTop = Math.max(0, top || 0);
+    this.insetBottom = Math.max(0, bottom || 0);
+  }
+
   resetView() {
-    this.controls.target.set(0, 0, 0);
+    if (this.teeth.length === 0) return;
 
-    const count = this.teeth.length;
-    let dist = 60;
-    if (count === 2) dist = 75;
-    else if (count >= 3) dist = 85 + (count - 3) * 15;
+    const width = this.container.clientWidth || window.innerWidth;
+    const height = this.container.clientHeight || window.innerHeight;
+    if (width === 0 || height === 0) return;
 
-    // Adjust camera distance for portrait mobile screens
-    if (this.camera.aspect < 1) {
-      dist = dist / Math.max(this.camera.aspect * 1.3, 0.55);
-    }
+    const box = new THREE.Box3().setFromObject(this.teethGroup);
+    if (box.isEmpty()) return;
 
-    // Smooth reset
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const freeHeight = Math.max(height - this.insetTop - this.insetBottom, height * 0.3);
+    const freeFraction = freeHeight / height;
+    const aspect = width / height;
+    const halfFov = THREE.MathUtils.degToRad(this.camera.fov) / 2;
+    const padding = 1.16;
+
+    const distV = (size.y * padding * 0.5) / (Math.tan(halfFov) * freeFraction);
+    const distH = (size.x * padding * 0.5) / (Math.tan(halfFov) * aspect);
+    const dist = Math.min(Math.max(distV, distH, this.controls.minDistance + 1), this.controls.maxDistance);
+
+    const shiftPx = (this.insetBottom - this.insetTop) / 2;
+    const visibleHeight = 2 * Math.tan(halfFov) * dist;
+    const worldShift = (shiftPx / height) * visibleHeight;
+    const target = new THREE.Vector3(center.x, center.y - worldShift, center.z);
+
+    this.controls.target.copy(target);
+
     const startPos = this.camera.position.clone();
-    const targetPos = new THREE.Vector3(0, 0, dist);
+    const targetPos = new THREE.Vector3(target.x, target.y, target.z + dist);
     const startTime = performance.now();
-    const duration = 300;
+    const duration = 320;
 
     const animateReset = () => {
       const elapsed = performance.now() - startTime;

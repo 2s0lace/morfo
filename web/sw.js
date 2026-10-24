@@ -1,5 +1,5 @@
 // Morfo Service Worker for Offline PWA Support
-const CACHE_NAME = 'morfo-cache-v1';
+const CACHE_NAME = 'morfo-cache-v2';
 
 const STATIC_ASSETS = [
   './',

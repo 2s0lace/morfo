@@ -47,6 +47,7 @@ export class FlashcardsSession {
 
     this.viewer.setTeeth([{ toothData: this.currentTooth, variant: 'standard' }]).then(() => {
       this.viewer.setRandomRotation();
+      setTimeout(() => this.viewer.resetView(), 400);
     });
 
     this.notify();

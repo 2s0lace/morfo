@@ -25,13 +25,9 @@ Aplikacja do nauki anatomii zębów stałych. Zamiast płaskich rycin w atlasie 
 3. Jeśli system zapyta o zgodę na instalację z tego źródła, zaakceptuj (standard przy instalowaniu plików `.apk` pobranych przez przeglądarkę).
 4. Kliknij „Zainstaluj”.
 
-## Sprawdzone urządzenia
+## Wymagania
 
-Aplikacja wymaga Androida 10 lub nowszego (procesory 64-bit / arm64). Została sprawdzona i działa m.in. na:
-
-- Samsung Galaxy Tab S9 FE ✅
-- Samsung Galaxy S25 Edge ✅
-- OPPO Find X9 Pro ✅
+Android 10 lub nowszy (urządzenia 64-bit / arm64).
 
 ## Sterowanie
 

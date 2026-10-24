@@ -39,6 +39,7 @@ export class QuizSession {
     // Load in 3D viewer and apply random rotation
     this.viewer.setTeeth([{ toothData: this.currentTooth, variant: 'standard' }]).then(() => {
       this.viewer.setRandomRotation();
+      setTimeout(() => this.viewer.resetView(), 400);
     });
 
     this.notify();
