@@ -8,6 +8,8 @@ export class ToothViewer {
     this.container = canvasContainer;
     this.teeth = []; // Array of { fdi, variant, group, pivot, toothData, targetQuat, currentQuat }
     this.loadedModels = new Map(); // cache of loaded GLTF scenes
+    this.loadId = 0;
+    this.cameraFitFrame = 0;
     this.selectedFdi = null;
 
     this.initScene();
@@ -24,14 +26,16 @@ export class ToothViewer {
     this.scene.background = new THREE.Color(0x111214);
 
     const width = this.container.clientWidth || window.innerWidth;
-    const height = this.container.clientHeight || (window.innerHeight - 100);
+    const height = this.container.clientHeight || window.innerHeight;
+    this.viewportWidth = width;
+    this.viewportHeight = height;
 
     this.camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 1000);
     this.camera.position.set(0, 0, 75);
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-    this.renderer.setSize(width, height);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer.setSize(width, height, false);
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.05;
     this.container.appendChild(this.renderer.domElement);
@@ -45,9 +49,6 @@ export class ToothViewer {
     this.controls.minDistance = 15;
     this.controls.maxDistance = 320;
     this.controls.target.set(0, 0, 0);
-
-    this.insetTop = 0;
-    this.insetBottom = 0;
 
     // Root group for all tooth objects
     this.teethGroup = new THREE.Group();
@@ -80,26 +81,40 @@ export class ToothViewer {
   }
 
   initEvents() {
-    window.addEventListener('resize', () => this.onResize());
-
     if (window.ResizeObserver) {
       this.resizeObserver = new ResizeObserver(() => this.onResize());
       this.resizeObserver.observe(this.container);
+    } else {
+      window.addEventListener('resize', () => this.onResize());
     }
 
+    const canvas = this.renderer.domElement;
+    // OrbitControls captures the pointer during a drag, including moves outside the canvas.
+    canvas.addEventListener('pointermove', (event) => {
+      if (!canvas.hasPointerCapture(event.pointerId)) return;
+      const bounds = canvas.getBoundingClientRect();
+      if (event.clientX < bounds.left || event.clientX >= bounds.right ||
+          event.clientY < bounds.top || event.clientY >= bounds.bottom) {
+        event.stopImmediatePropagation();
+      }
+    }, { capture: true });
+
     // Double tap / double click to center
-    this.renderer.domElement.addEventListener('dblclick', () => this.resetView());
+    canvas.addEventListener('dblclick', () => this.resetView());
   }
 
   onResize() {
-    if (!this.container) return;
     const width = this.container.clientWidth;
     const height = this.container.clientHeight;
-    if (width === 0 || height === 0) return;
+    if (width === 0 || height === 0 ||
+        (width === this.viewportWidth && height === this.viewportHeight)) return;
 
+    this.viewportWidth = width;
+    this.viewportHeight = height;
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
-    this.renderer.setSize(width, height);
+    this.renderer.setSize(width, height, false);
+    this.resetView({ preserveAngle: true, animated: false });
   }
 
   async loadGLTF(modelId) {
@@ -121,19 +136,24 @@ export class ToothViewer {
   }
 
   /**
-   * Set the teeth displayed in the comparison scene
+   * Set the teeth displayed in the scene and report whether all models loaded.
    * @param {Array<{toothData: Object, variant: string}>} items
+   * @param {{randomRotation?: boolean}} options
+   * @returns {Promise<boolean>} Whether the request is current and every model loaded.
    */
-  async setTeeth(items) {
+  async setTeeth(items, { randomRotation = false } = {}) {
+    const loadId = ++this.loadId;
+    cancelAnimationFrame(this.cameraFitFrame);
     // Clear existing
     while (this.teethGroup.children.length > 0) {
       this.teethGroup.remove(this.teethGroup.children[0]);
     }
     this.teeth = [];
+    this.onResize();
 
     if (!items || items.length === 0) {
       this.controls.target.set(0, 0, 0);
-      return;
+      return false;
     }
 
     const count = items.length;
@@ -149,6 +169,7 @@ export class ToothViewer {
 
       try {
         const gltf = await this.loadGLTF(modelId);
+        if (loadId !== this.loadId) return false;
         const toothObj = gltf.scene.clone(true);
 
         // Configure enamel material
@@ -198,11 +219,19 @@ export class ToothViewer {
 
         this.teeth.push(toothEntry);
       } catch (err) {
+        if (loadId !== this.loadId) return false;
         console.error(`Failed to load model for tooth ${tooth.fdi}:`, err);
       }
     }
 
     this.resetView();
+    if (randomRotation && this.teeth.length > 0) {
+      this.setRandomRotation();
+      setTimeout(() => {
+        if (loadId === this.loadId) this.resetView();
+      }, 400);
+    }
+    return this.teeth.length === items.length;
   }
 
   /**
@@ -292,42 +321,35 @@ export class ToothViewer {
     item.animating = true;
   }
 
-  setInsets(top, bottom) {
-    this.insetTop = Math.max(0, top || 0);
-    this.insetBottom = Math.max(0, bottom || 0);
-  }
-
-  resetView() {
+  resetView({ preserveAngle = false, animated = true } = {}) {
     if (this.teeth.length === 0) return;
-
-    const width = this.container.clientWidth || window.innerWidth;
-    const height = this.container.clientHeight || window.innerHeight;
-    if (width === 0 || height === 0) return;
 
     const box = new THREE.Box3().setFromObject(this.teethGroup);
     if (box.isEmpty()) return;
 
-    const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
-    const freeHeight = Math.max(height - this.insetTop - this.insetBottom, height * 0.3);
-    const freeFraction = freeHeight / height;
-    const aspect = width / height;
-    const halfFov = THREE.MathUtils.degToRad(this.camera.fov) / 2;
+    const direction = preserveAngle
+      ? this.camera.getWorldDirection(new THREE.Vector3()).negate()
+      : new THREE.Vector3(0, 0, 1);
+    const viewRotation = new THREE.Matrix4().lookAt(direction, new THREE.Vector3(), this.camera.up).transpose();
+    const size = box.applyMatrix4(viewRotation).getSize(new THREE.Vector3());
+    const halfFovTan = Math.tan(THREE.MathUtils.degToRad(this.camera.fov) / 2);
     const padding = 1.16;
 
-    const distV = (size.y * padding * 0.5) / (Math.tan(halfFov) * freeFraction);
-    const distH = (size.x * padding * 0.5) / (Math.tan(halfFov) * aspect);
-    const dist = Math.min(Math.max(distV, distH, this.controls.minDistance + 1), this.controls.maxDistance);
+    const distV = (size.y * padding * 0.5) / halfFovTan;
+    const distH = (size.x * padding * 0.5) / (halfFovTan * this.camera.aspect);
+    const distance = Math.max(distV, distH) + size.z / 2;
+    const dist = THREE.MathUtils.clamp(distance, this.controls.minDistance + 1, this.controls.maxDistance);
+    const targetPos = center.clone().addScaledVector(direction, dist);
 
-    const shiftPx = (this.insetBottom - this.insetTop) / 2;
-    const visibleHeight = 2 * Math.tan(halfFov) * dist;
-    const worldShift = (shiftPx / height) * visibleHeight;
-    const target = new THREE.Vector3(center.x, center.y - worldShift, center.z);
-
-    this.controls.target.copy(target);
+    cancelAnimationFrame(this.cameraFitFrame);
+    this.controls.target.copy(center);
+    if (!animated) {
+      this.camera.position.copy(targetPos);
+      return;
+    }
 
     const startPos = this.camera.position.clone();
-    const targetPos = new THREE.Vector3(target.x, target.y, target.z + dist);
     const startTime = performance.now();
     const duration = 320;
 
@@ -337,7 +359,7 @@ export class ToothViewer {
       const ease = 0.5 - Math.cos(progress * Math.PI) / 2;
       this.camera.position.lerpVectors(startPos, targetPos, ease);
       if (progress < 1) {
-        requestAnimationFrame(animateReset);
+        this.cameraFitFrame = requestAnimationFrame(animateReset);
       }
     };
     animateReset();

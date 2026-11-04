@@ -5,7 +5,9 @@ const STATIC_ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './css/style.css',
+  './css/style.css?v=18',
+  './fonts/roboto-latin.woff2',
+  './fonts/roboto-latin-ext.woff2',
   './js/app.js',
   './js/data.js',
   './js/i18n.js',
@@ -15,13 +17,14 @@ const STATIC_ASSETS = [
   './vendor/three.module.js',
   './vendor/OrbitControls.js',
   './vendor/GLTFLoader.js',
-  './icons/icon.svg'
+  './icons/icon.svg?v=2'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
+      // Refresh app files while keeping models cached for offline use.
+      return cache.addAll(STATIC_ASSETS.map((path) => new Request(path, { cache: 'reload' })));
     })
   );
   self.skipWaiting();

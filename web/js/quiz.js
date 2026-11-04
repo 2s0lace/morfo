@@ -1,6 +1,5 @@
 // Morfo FDI Quiz Logic
-import { ALL_TEETH, getTooth } from './data.js';
-import { t, getLang } from './i18n.js';
+import { ALL_TEETH } from './data.js';
 
 export class QuizSession {
   constructor(viewer, onStateChange) {
@@ -8,6 +7,8 @@ export class QuizSession {
     this.onStateChange = onStateChange;
 
     this.currentTooth = null;
+    this.questionId = 0;
+    this.modelStatus = 'idle';
     this.input = '';
     this.isAnswered = false;
     this.isCorrect = false;
@@ -21,7 +22,8 @@ export class QuizSession {
     this.nextQuestion();
   }
 
-  nextQuestion() {
+  async nextQuestion() {
+    const questionId = ++this.questionId;
     // Pick random tooth avoiding immediate repetition
     let candidates = ALL_TEETH.filter(t => !this.recentTeeth.includes(t.fdi));
     if (candidates.length === 0) candidates = ALL_TEETH;
@@ -35,18 +37,20 @@ export class QuizSession {
     this.input = '';
     this.isAnswered = false;
     this.isCorrect = false;
+    this.modelStatus = 'loading';
+    this.notify();
 
-    // Load in 3D viewer and apply random rotation
-    this.viewer.setTeeth([{ toothData: this.currentTooth, variant: 'standard' }]).then(() => {
-      this.viewer.setRandomRotation();
-      setTimeout(() => this.viewer.resetView(), 400);
-    });
-
+    const loaded = await this.viewer.setTeeth(
+      [{ toothData: this.currentTooth, variant: 'standard' }],
+      { randomRotation: true }
+    );
+    if (questionId !== this.questionId) return;
+    this.modelStatus = loaded ? 'ready' : 'failed';
     this.notify();
   }
 
   typeDigit(digit) {
-    if (this.isAnswered) return;
+    if (this.modelStatus !== 'ready' || this.isAnswered) return;
     if (this.input.length >= 2) return;
 
     // First digit must be 1-4 (quadrant)
@@ -76,7 +80,7 @@ export class QuizSession {
   }
 
   check() {
-    if (this.isAnswered || this.input.length !== 2) return;
+    if (this.modelStatus !== 'ready' || this.isAnswered || this.input.length !== 2) return;
 
     const enteredFdi = parseInt(this.input, 10);
     this.isAnswered = true;
@@ -98,6 +102,7 @@ export class QuizSession {
     if (this.onStateChange) {
       this.onStateChange({
         currentTooth: this.currentTooth,
+        modelStatus: this.modelStatus,
         input: this.input,
         isAnswered: this.isAnswered,
         isCorrect: this.isCorrect,

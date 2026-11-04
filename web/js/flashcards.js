@@ -45,10 +45,10 @@ export class FlashcardsSession {
     this.currentTooth = pool[0];
     this.isRevealed = false;
 
-    this.viewer.setTeeth([{ toothData: this.currentTooth, variant: 'standard' }]).then(() => {
-      this.viewer.setRandomRotation();
-      setTimeout(() => this.viewer.resetView(), 400);
-    });
+    this.viewer.setTeeth(
+      [{ toothData: this.currentTooth, variant: 'standard' }],
+      { randomRotation: true }
+    );
 
     this.notify();
   }

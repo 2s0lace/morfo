@@ -10,7 +10,7 @@ const LOWER_ROW = [48, 47, 46, 45, 44, 43, 42, 41, 31, 32, 33, 34, 35, 36, 37, 3
 
 class MorfoApp {
   constructor() {
-    this.screen = 'selector';
+    this.screen = 'home';
     this.stageMode = 'compare';
     this.selectedTeethFdi = [];
     this.inspectedFdi = null;
@@ -22,7 +22,6 @@ class MorfoApp {
     };
     this.loadToken = 0;
     this.toastTimer = null;
-    this.resizeTimer = null;
     this.init();
   }
 
@@ -41,15 +40,14 @@ class MorfoApp {
   }
 
   bindEvents() {
+    document.getElementById('open-selector-btn').addEventListener('click', () => this.showScreen('selector'));
     document.getElementById('start-compare-btn').addEventListener('click', () => this.openCompare());
-    document.getElementById('back-to-selector-btn').addEventListener('click', () => this.goSelector());
-    document.getElementById('quiz-back-btn').addEventListener('click', () => this.goSelector());
-    document.getElementById('fc-back-btn').addEventListener('click', () => this.goSelector());
+    ['selector-back-btn', 'back-to-selector-btn', 'quiz-back-btn', 'fc-back-btn'].forEach((id) => {
+      document.getElementById(id).addEventListener('click', () => this.goBack());
+    });
     document.getElementById('clear-selection-btn').addEventListener('click', () => this.clearSelection());
     document.getElementById('open-quiz-btn').addEventListener('click', () => this.openQuiz());
-    document.getElementById('learn-quiz-btn').addEventListener('click', () => this.openQuiz());
     document.getElementById('open-flashcards-btn').addEventListener('click', () => this.openFlashcards());
-    document.getElementById('learn-flashcards-btn').addEventListener('click', () => this.openFlashcards());
     document.getElementById('open-about-btn').addEventListener('click', () => this.openSheet('about-sheet'));
     document.getElementById('open-settings-btn').addEventListener('click', () => this.openSheet('settings-sheet'));
     document.getElementById('open-specs-top-btn').addEventListener('click', () => this.openSpecs());
@@ -65,7 +63,7 @@ class MorfoApp {
 
     const archHost = document.getElementById('arch-chart');
     archHost.addEventListener('click', (event) => {
-      const chip = event.target.closest('.tooth-chip');
+      const chip = event.target.closest('[data-fdi]');
       if (!chip) return;
       this.toggleTooth(Number(chip.dataset.fdi));
     });
@@ -133,27 +131,6 @@ class MorfoApp {
     });
 
     window.addEventListener('keydown', (event) => this.handleKeydown(event));
-    window.addEventListener('resize', () => {
-      clearTimeout(this.resizeTimer);
-      this.resizeTimer = setTimeout(() => {
-        this.viewer.onResize();
-        if (this.screen === 'stage') {
-          this.updateViewerInsets();
-          this.viewer.resetView();
-        }
-      }, 220);
-    });
-  }
-
-  updateViewerInsets() {
-    const stage = document.getElementById('screen-stage');
-    const isVisible = (element) => element && element.getBoundingClientRect().height > 0;
-    const topBar = [...stage.querySelectorAll('.stage-topbar')].find(isVisible);
-    const bottomBar = [...stage.querySelectorAll('.stage-bottombar')].find(isVisible);
-    this.viewer.setInsets(
-      topBar ? topBar.getBoundingClientRect().height : 0,
-      bottomBar ? bottomBar.getBoundingClientRect().height : 0
-    );
   }
 
   handleKeydown(event) {
@@ -163,7 +140,7 @@ class MorfoApp {
         this.closeSheet(openSheet);
         return;
       }
-      if (this.screen === 'stage') this.goSelector();
+      if (this.screen !== 'home') this.goBack();
       return;
     }
     if (openSheet) return;
@@ -186,7 +163,8 @@ class MorfoApp {
         this.quiz.typeDigit(event.key);
       } else if (event.key === 'Backspace') {
         this.quiz.backspace();
-      } else if ((event.key === 'Enter' || event.key === ' ') && this.quiz.isAnswered) {
+      } else if ((event.key === 'Enter' || event.key === ' ') &&
+          (this.quiz.isAnswered || this.quiz.modelStatus === 'failed')) {
         event.preventDefault();
         this.quiz.nextQuestion();
       }
@@ -207,12 +185,11 @@ class MorfoApp {
 
   showScreen(name) {
     this.screen = name;
+    const active = document.getElementById(`screen-${name}`);
     document.querySelectorAll('.screen').forEach((screen) => {
-      screen.classList.toggle('is-active', screen.id === `screen-${name}`);
+      screen.classList.toggle('is-active', screen === active);
     });
-    if (name === 'stage') {
-      setTimeout(() => this.viewer.onResize(), 60);
-    }
+    active.focus({ preventScroll: true });
   }
 
   setStageMode(mode) {
@@ -222,29 +199,29 @@ class MorfoApp {
     stage.classList.add(`mode-${mode}`);
   }
 
-  goSelector() {
+  goBack() {
     this.closeAllSheets();
-    this.showScreen('selector');
+    if (this.screen === 'stage') {
+      this.showScreen(this.stageMode === 'compare' ? 'selector' : 'home');
+      this.setLoading(false);
+      this.viewer.setTeeth([]);
+    } else if (this.screen === 'selector') {
+      this.showScreen('home');
+    }
   }
 
   openCompare() {
     if (this.selectedTeethFdi.length === 0) return;
     this.setStageMode('compare');
     this.showScreen('stage');
-    this.updateViewerInsets();
     this.renderSelection();
     this.loadSelectedTeethInViewer();
-    setTimeout(() => {
-      this.viewer.onResize();
-      this.viewer.resetView();
-    }, 80);
   }
 
   openQuiz() {
     this.closeAllSheets();
     this.setStageMode('quiz');
     this.showScreen('stage');
-    this.updateViewerInsets();
     this.quiz.start();
   }
 
@@ -252,7 +229,6 @@ class MorfoApp {
     this.closeAllSheets();
     this.setStageMode('flashcards');
     this.showScreen('stage');
-    this.updateViewerInsets();
     this.flashcards.start();
   }
 
@@ -294,6 +270,9 @@ class MorfoApp {
     document.querySelectorAll('[data-i18n]').forEach((el) => {
       el.textContent = t(el.dataset.i18n);
     });
+    document.querySelectorAll('[data-i18n-label]').forEach((el) => {
+      el.setAttribute('aria-label', t(el.dataset.i18nLabel));
+    });
 
     document.querySelectorAll('#lang-segmented [data-lang]').forEach((btn) => {
       btn.classList.toggle('is-active', btn.dataset.lang === getLang());
@@ -325,7 +304,16 @@ class MorfoApp {
     }).join('');
 
     const active = this.filtersActive();
-    document.getElementById('select-matching-btn').disabled = !active;
+    const matchingCount = active ? this.matchingTeeth().length : 0;
+    const overLimit = matchingCount > MAX_TEETH;
+    const selectMatching = document.getElementById('select-matching-btn');
+    selectMatching.disabled = matchingCount === 0 || overLimit;
+    selectMatching.classList.toggle('hidden', overLimit);
+    const limit = document.getElementById('filter-limit');
+    limit.classList.toggle('hidden', !overLimit);
+    limit.textContent = overLimit
+      ? t('tooManyMatchingTeeth').replace('{limit}', MAX_TEETH).replace('{count}', matchingCount)
+      : '';
     document.getElementById('clear-filters-btn').disabled = !active;
   }
 
@@ -338,6 +326,10 @@ class MorfoApp {
     return (this.filters.classes.size === 0 || this.filters.classes.has(tooth.kind.classKey))
       && (this.filters.arches.size === 0 || this.filters.arches.has(tooth.archKey))
       && (this.filters.sides.size === 0 || this.filters.sides.has(tooth.sideKey));
+  }
+
+  matchingTeeth() {
+    return ALL_TEETH.filter((tooth) => this.matchesFilters(tooth));
   }
 
   toggleFilter(type, key) {
@@ -358,8 +350,8 @@ class MorfoApp {
   }
 
   selectMatching() {
-    const matches = ALL_TEETH.filter((tooth) => this.matchesFilters(tooth)).slice(0, MAX_TEETH);
-    if (matches.length === 0) return;
+    const matches = this.matchingTeeth();
+    if (matches.length === 0 || matches.length > MAX_TEETH) return;
     this.selectedTeethFdi = matches.map((tooth) => tooth.fdi);
     this.inspectedFdi = this.selectedTeethFdi[0];
     this.afterSelectionChange();
@@ -368,13 +360,13 @@ class MorfoApp {
   chipSize(tooth) {
     switch (tooth.kind.classKey) {
       case 'MOLAR':
-        return 36;
+        return 31;
       case 'PREMOLAR':
-        return 33;
+        return 27;
       case 'CANINE':
-        return 30;
+        return 26;
       default:
-        return 28;
+        return 25;
     }
   }
 
@@ -387,10 +379,10 @@ class MorfoApp {
       const mid = acc + widths[index] / 2;
       acc += widths[index];
       const angle = Math.PI * (1 - (0.02 + 0.96 * mid / total));
-      const x = 180 + 158 * Math.cos(angle);
+      const x = 180 + 161 * Math.cos(angle);
       const y = upper
-        ? 392 * 0.47 - 145 * Math.sin(angle)
-        : 392 * 0.53 + 145 * Math.sin(angle);
+        ? 392 * 0.47 - 163 * Math.sin(angle)
+        : 392 * 0.53 + 163 * Math.sin(angle);
       return { fdi, x, y, size: widths[index], name: getTooth(fdi)[getLang() === 'pl' ? 'namePl' : 'nameEn'] };
     });
   }
@@ -401,7 +393,14 @@ class MorfoApp {
 
     const selected = new Set(this.selectedTeethFdi);
     const filterActive = this.filtersActive();
+    const teeth = [...this.archPositions(UPPER_ROW, true), ...this.archPositions(LOWER_ROW, false)];
 
+    // Draw the expanded tap areas behind every visible tooth.
+    const hitAreas = teeth.map(({ fdi, x, y, size }) => {
+      const hitSize = size + 14;
+      const half = hitSize / 2;
+      return `<rect class="tooth-hit" data-fdi="${fdi}" x="${(x - half).toFixed(1)}" y="${(y - half).toFixed(1)}" width="${hitSize}" height="${hitSize}" rx="14" fill="transparent"/>`;
+    }).join('');
     const chipMarkup = ({ fdi, x, y, size, name }) => {
       const half = size / 2;
       const isSelected = selected.has(fdi);
@@ -410,22 +409,18 @@ class MorfoApp {
       if (isSelected) classes.push('is-selected');
       if (isDimmed) classes.push('is-dimmed');
       return `<g class="${classes.join(' ')}" data-fdi="${fdi}" tabindex="0" role="button" aria-pressed="${isSelected}" aria-label="${name}">
-        <rect x="${(x - half - 7).toFixed(1)}" y="${(y - half - 7).toFixed(1)}" width="${size + 14}" height="${size + 14}" rx="14" fill="transparent"/>
-        <rect class="chip-body" x="${(x - half).toFixed(1)}" y="${(y - half).toFixed(1)}" width="${size}" height="${size}" rx="${Math.min(11, size * 0.34).toFixed(1)}"/>
+        <rect class="chip-body" x="${(x - half).toFixed(1)}" y="${(y - half).toFixed(1)}" width="${size}" height="${size}" rx="${(size * 0.38).toFixed(1)}"/>
         <text class="chip-label" x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle" dominant-baseline="central">${fdi}</text>
       </g>`;
     };
-
-    const upperChips = this.archPositions(UPPER_ROW, true).map(chipMarkup).join('');
-    const lowerChips = this.archPositions(LOWER_ROW, false).map(chipMarkup).join('');
 
     host.innerHTML = `<svg class="arch-chart" viewBox="0 0 360 392" role="group" aria-label="${t('tabCompare')}">
       <text class="arch-caption" x="180" y="132" text-anchor="middle">${t('maxillaryShort')}</text>
       <text class="arch-caption" x="180" y="260" text-anchor="middle">${t('mandibularShort')}</text>
       <text class="arch-caption" x="7" y="196" text-anchor="start" dominant-baseline="central">${t('rightSideShort')}</text>
       <text class="arch-caption" x="353" y="196" text-anchor="end" dominant-baseline="central">${t('leftSideShort')}</text>
-      ${upperChips}
-      ${lowerChips}
+      <g aria-hidden="true">${hitAreas}</g>
+      ${teeth.map(chipMarkup).join('')}
     </svg>`;
   }
 
@@ -518,7 +513,9 @@ class MorfoApp {
     const token = this.loadToken;
     if (this.screen === 'stage') this.setLoading(items.length > 0);
     Promise.resolve(this.viewer.setTeeth(items)).finally(() => {
-      if (token === this.loadToken) this.setLoading(false);
+      if (token === this.loadToken && this.screen === 'stage' && this.stageMode === 'compare') {
+        this.setLoading(false);
+      }
     });
   }
 
@@ -534,7 +531,7 @@ class MorfoApp {
     const hasSelection = this.selectedTeethFdi.length > 0;
 
     if (hasSelection) {
-      selectionText.textContent = this.selectedTeethFdi.join(' · ');
+      selectionText.textContent = this.selectedTeethFdi.join(' ');
       selectionText.classList.remove('is-empty');
       clearBtn.classList.remove('hidden');
     } else {
@@ -697,7 +694,7 @@ class MorfoApp {
   }
 
   renderQuizState(state) {
-    if (!state || !state.currentTooth) return;
+    if (this.screen !== 'stage' || this.stageMode !== 'quiz' || !state?.currentTooth) return;
 
     const input = document.getElementById('quiz-input-display');
     const feedback = document.getElementById('quiz-feedback-card');
@@ -705,16 +702,28 @@ class MorfoApp {
     const streak = document.getElementById('quiz-streak-count');
     const score = document.getElementById('quiz-score-count');
     const keypad = document.getElementById('quiz-keypad');
+    const loadFailed = state.modelStatus === 'failed';
 
-    input.textContent = (state.input || '').padEnd(2, '_');
+    this.setLoading(state.modelStatus === 'loading');
+    input.classList.toggle('hidden', state.isAnswered || loadFailed);
+    input.setAttribute('aria-label', `${t('quizPrompt')} ${state.input}`.trim());
+    [...input.children].forEach((slot, index) => {
+      slot.textContent = state.input[index] || '';
+      slot.classList.toggle('is-current', state.modelStatus === 'ready' && index === state.input.length);
+    });
     streak.textContent = String(state.streak);
     score.textContent = `${state.score} / ${state.totalAnswered}`;
-    keypad.classList.toggle('hidden', state.isAnswered);
+    keypad.classList.toggle('hidden', state.isAnswered || loadFailed);
+    keypad.querySelectorAll('button').forEach((button) => {
+      button.disabled = state.modelStatus !== 'ready';
+    });
+    nextBtn.classList.toggle('hidden', !state.isAnswered && !loadFailed);
 
-    if (state.isAnswered) {
+    if (loadFailed) {
+      feedback.className = 'quiz-feedback incorrect';
+      feedback.textContent = t('quizModelLoadFailed');
+    } else if (state.isAnswered) {
       const toothName = getLang() === 'pl' ? state.currentTooth.namePl : state.currentTooth.nameEn;
-      feedback.classList.remove('hidden');
-      nextBtn.classList.remove('hidden');
       feedback.className = `quiz-feedback ${state.isCorrect ? 'correct' : 'incorrect'}`;
 
       if (state.isCorrect) {
@@ -734,17 +743,7 @@ class MorfoApp {
       }
     } else {
       feedback.classList.add('hidden');
-      nextBtn.classList.add('hidden');
     }
-  }
-
-  refitFlashcards() {
-    requestAnimationFrame(() => {
-      if (this.screen === 'stage' && this.stageMode === 'flashcards') {
-        this.updateViewerInsets();
-        this.viewer.resetView();
-      }
-    });
   }
 
   renderFlashcardsState(state) {
@@ -759,7 +758,6 @@ class MorfoApp {
       answerCard.classList.add('hidden');
       revealBtn.classList.remove('hidden');
       ratingGroup.classList.add('hidden');
-      this.refitFlashcards();
       return;
     }
 
@@ -782,7 +780,6 @@ class MorfoApp {
       <ul class="specs-list" style="margin-top:12px">
         ${features.slice(0, 3).map((feature) => `<li class="spec-item">${feature}</li>`).join('')}
       </ul>`;
-    this.refitFlashcards();
   }
 
   showToast(message) {
