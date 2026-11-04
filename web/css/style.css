@@ -1377,7 +1377,17 @@ ul {
   line-height: 21px;
 }
 
+.about-links {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
 
+.about-links a {
+  padding: 8px;
+  color: var(--accent-color);
+  text-underline-offset: 3px;
+}
 
 /* Toast */
 

@@ -5,7 +5,7 @@ const STATIC_ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './css/style.css?v=18',
+  './css/style.css?v=19',
   './fonts/roboto-latin.woff2',
   './fonts/roboto-latin-ext.woff2',
   './js/app.js',
