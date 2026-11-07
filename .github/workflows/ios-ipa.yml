@@ -1,0 +1,51 @@
+name: Build iOS IPA
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+    paths: [ 'ios/**', 'web/models/**', '.github/workflows/ios-ipa.yml' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ 'ios/**', 'web/models/**' ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ipa:
+    name: Test & build unsigned Morfo.ipa
+    runs-on: macos-26
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Select newest Xcode
+        run: |
+          sudo xcode-select -s "$(ls -d /Applications/Xcode*.app | sort -V | tail -1)/Contents/Developer"
+          xcodebuild -version
+
+      - name: Run logic tests
+        run: |
+          SIM=$(xcrun simctl list devices available | grep -m1 -oE 'iPhone [^(]+' | sed 's/ *$//')
+          xcodebuild test -project ios/Morfo.xcodeproj -scheme Morfo \
+            -destination "platform=iOS Simulator,name=$SIM" -derivedDataPath ios/build \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Build IPA
+        run: ios/scripts/build-ipa.sh
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Morfo.ipa
+          path: ios/build/Morfo.ipa
+          retention-days: 30
+
+      - name: Attach IPA to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ios/build/Morfo.ipa

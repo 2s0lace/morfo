@@ -60,6 +60,25 @@ Gotowy plik APK znajduje się w katalogu: `app/build/outputs/apk/release/app-rel
 
 ---
 
+## 🍎 iOS
+
+Natywna aplikacja w katalogu `ios/` (SwiftUI + RealityKit, Liquid Glass), z tymi samymi funkcjami co wersja na Androida: porównywanie, rzuty, etykiety, quiz, fiszki i statystyki.
+
+- **Wymagania**: Xcode 26+, iOS / iPadOS 26+.
+- **Projekt**: `ios/Morfo.xcodeproj`. Modele są brane bezpośrednio z `web/models` (bez kolejnej kopii).
+- **Uruchomienie**: otwórz projekt w Xcode, w *Signing & Capabilities* wybierz swój zespół (wystarczy darmowy *Personal Team*) i kliknij ▶.
+- **Testy logiki**:
+  ```bash
+  xcodebuild test -project ios/Morfo.xcodeproj -scheme Morfo -destination 'platform=iOS Simulator,name=iPhone 17'
+  ```
+- **Debug**: argumenty startowe `-debugTeeth 14,24 -debugRoute compare|quiz|quizHome|quizStats|about` otwierają od razu wybrany ekran.
+
+Kod odpowiada pakietom z Androida: `Core` (dentition, i18n, math), `Workspace`, `Quiz`, `Render` (RealityKit zamiast Filamenta), `UI`. `Core/Strings.swift` i `Core/Morphology.swift` zostały wygenerowane z plików Kotlin – zmieniając teksty, zmień je w obu miejscach.
+
+Różnice w renderowaniu: zęby prawej strony mają osobną, lustrzaną siatkę (ujemna skala psułaby normalne i oświetlenie), a otoczenie studia jest generowane jako obraz HDR dla oświetlenia IBL zamiast harmonik sferycznych.
+
+---
+
 ## 🔒 Podpisywanie wydania (CI/CD)
 
 W workflow GitHub Actions (`.github/workflows/build.yml`) konfiguracja wydania odczytuje następujące GitHub Secrets:

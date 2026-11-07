@@ -27,7 +27,8 @@ Aplikacja do nauki anatomii zębów stałych. Zamiast płaskich rycin w atlasie 
 
 ## Wymagania
 
-Android 10 lub nowszy (urządzenia 64-bit / arm64).
+- Android 10 lub nowszy (urządzenia 64-bit / arm64).
+- iOS / iPadOS 26 lub nowszy (aplikacja natywna, na razie poza App Store – instalacja opisana w [ios/INSTALL.md](ios/INSTALL.md)).
 
 ## Sterowanie
 
